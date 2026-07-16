@@ -76,11 +76,16 @@ Copy the resulting plugin directory into `C:\Program Files\WootingAnalogPlugins`
 Before building release DLLs, compile and run the deterministic CPPRO protocol test:
 
 ```powershell
-g++ -std=c++20 -O2 -Wall -Wextra -pedantic -I Soup tests/cppro_protocol_test.cpp -o cppro_protocol_test.exe
-.\cppro_protocol_test.exe
+.\tools\run_tests.ps1
 ```
 
-The test validates the command frame, all 68 hardware-key mappings, supported event types, malformed-report rejection, release values, distance clamping, and monotonic `0–4 mm` normalization. The same test runs on every push and pull request through GitHub Actions.
+The test runner locates and initializes Visual Studio automatically. It validates the command frame, all 68 hardware-key mappings, supported event types, malformed-report rejection, release values, distance clamping, monotonic `0–4 mm` normalization, ABI 0/1 translation-unit compilation, and the HID probe build. The same test runs on every push and pull request through GitHub Actions.
+
+To include live assertions against a connected CPPRO:
+
+```powershell
+.\tools\run_tests.ps1 -Hardware
+```
 
 ## Verifying the CPPRO connection
 

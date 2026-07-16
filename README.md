@@ -87,6 +87,17 @@ To include live assertions against a connected CPPRO:
 .\tools\run_tests.ps1 -Hardware
 ```
 
+After compiling release DLLs, validate their exported ABI and live analog data path:
+
+```powershell
+.\tools\run_tests.ps1 `
+  -PluginDll .\abiv0.dll,.\abiv1.dll,.\abiv0-pluswooting.dll,.\abiv1-pluswooting.dll `
+  -CaptureSeconds 5 `
+  -RequireAnalogInput
+```
+
+Press several CPPRO keys at varying depths during each capture window. The binary smoke test loads every DLL in a separate process, checks its ABI-specific exports, discovers the CPPRO, validates ABI 1 device metadata, rejects values outside `0.0–1.0`, requires non-zero analog samples, and unloads the plugin cleanly.
+
 ## Verifying the CPPRO connection
 
 The repository includes a read-only Windows HID probe. It lists the CPPRO HID collections, sends the same key-report request used by the plugin, and prints changing input reports.

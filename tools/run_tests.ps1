@@ -1,6 +1,10 @@
 [CmdletBinding()]
 param(
-    [switch]$Hardware
+    [switch]$Hardware,
+    [string[]]$PluginDll,
+    [ValidateRange(0, 60)]
+    [int]$CaptureSeconds = 3,
+    [switch]$RequireAnalogInput
 )
 
 $ErrorActionPreference = 'Stop'
@@ -50,7 +54,8 @@ try {
         'cl /nologo /std:c++20 /EHsc /W4 /I Soup /c Soup\soup\AnalogueKeyboard.cpp /Fo:build\tests\AnalogueKeyboard.obj',
         'cl /nologo /std:c++20 /EHsc /W4 /I Soup /DABI_VERSION_TARGET=0 /c main.cpp /Fo:build\tests\main-abiv0.obj',
         'cl /nologo /std:c++20 /EHsc /W4 /I Soup /DABI_VERSION_TARGET=1 /c main.cpp /Fo:build\tests\main-abiv1.obj',
-        'cl /nologo /std:c++20 /EHsc /W4 tools\cppro_hid_probe.cpp /Fe:build\tests\cppro_hid_probe.exe /Fo:build\tests\cppro_hid_probe.obj hid.lib cfgmgr32.lib'
+        'cl /nologo /std:c++20 /EHsc /W4 tools\cppro_hid_probe.cpp /Fe:build\tests\cppro_hid_probe.exe /Fo:build\tests\cppro_hid_probe.obj hid.lib cfgmgr32.lib',
+        'cl /nologo /std:c++20 /EHsc /W4 /WX tests\release_dll_smoke.cpp /Fe:build\tests\release_dll_smoke.exe /Fo:build\tests\release_dll_smoke.obj'
     ) -join ' && '
 
     $cmdLine = '"' + $vsDevCmd + '" -arch=x64 -host_arch=x64 >nul && ' + $commands
@@ -74,6 +79,18 @@ try {
             }
         }
         Write-Host 'CPPRO live hardware assertions passed'
+    }
+
+    foreach ($dll in $PluginDll) {
+        $resolvedDll = (Resolve-Path -LiteralPath $dll).Path
+        $arguments = @($resolvedDll, $CaptureSeconds)
+        if ($RequireAnalogInput) {
+            $arguments += '--require-input'
+        }
+        & '.\build\tests\release_dll_smoke.exe' @arguments
+        if ($LASTEXITCODE -ne 0) {
+            throw "Release DLL smoke test failed for $resolvedDll with exit code $LASTEXITCODE."
+        }
     }
 
     Write-Host 'All CPPRO tests passed'

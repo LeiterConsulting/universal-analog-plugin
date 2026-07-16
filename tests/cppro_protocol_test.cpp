@@ -78,20 +78,21 @@ void test_decoding()
 	report[1] = 8;
 	report[2] = 3;
 	report[3] = 4;
-	report[5] = 32;
+	report[5] = 7; // Reserved: must not be interpreted as travel.
+	report[6] = 32;
 	assert(cp_pro::decodeKeyReport(report.data(), report.size(), decoded));
 	assert(decoded.key == KEY_ENTER);
 	assert(decoded.value == 204);
 
 	report[2] = 2;
-	report[5] = 0;
+	report[6] = 0;
 	assert(cp_pro::decodeKeyReport(report.data(), report.size(), decoded));
 	assert(decoded.key == KEY_ENTER);
 	assert(decoded.value == 0);
 
 	report[2] = 1;
 	report[3] = 68;
-	report[5] = 255;
+	report[6] = 255;
 	assert(cp_pro::decodeKeyReport(report.data(), report.size(), decoded));
 	assert(decoded.key == KEY_ESCAPE);
 	assert(decoded.value == 255);

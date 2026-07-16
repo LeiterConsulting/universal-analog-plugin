@@ -113,7 +113,7 @@ struct Device
 	soup::AnalogueKeyboard kbd;
 	soup::Thread thrd;
 	std::string manufacturer_name;
-	static constexpr auto MAX_ACTIVES = 16;
+	static constexpr auto MAX_ACTIVES = soup::NUM_KEYS;
 	uint8_t actives = 0;
 	uint16_t active_codes[MAX_ACTIVES];
 	float active_analogues[MAX_ACTIVES];

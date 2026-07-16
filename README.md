@@ -35,7 +35,7 @@ Use `universal-analog-plugin`, not `universal-analog-plugin-with-wooting-device-
 ### Requirements
 
 - Git
-- A C++17 Windows toolchain supported by [Sun](https://github.com/calamity-inc/Sun)
+- A C++20 Windows toolchain supported by [Sun](https://github.com/calamity-inc/Sun)
 - [Sun](https://github.com/calamity-inc/Sun/releases) available as `sun` on `PATH`
 
 The included ABI 0 Rust library targets the Microsoft C++ runtime. Use an MSVC/LLVM-compatible toolchain for complete ABI 0 and ABI 1 packages; MinGW can compile and test the CPPRO code but cannot link the included ABI 0 library.
@@ -43,7 +43,7 @@ The included ABI 0 Rust library targets the Microsoft C++ runtime. Use an MSVC/L
 Clone the tagged CPPRO source and its Soup dependency:
 
 ```powershell
-git clone --recurse-submodules --branch v0.1.0-cppro https://github.com/LeiterConsulting/universal-analog-plugin.git
+git clone --recurse-submodules --branch v0.1.1-cppro https://github.com/LeiterConsulting/universal-analog-plugin.git
 Set-Location universal-analog-plugin
 ```
 
@@ -71,6 +71,17 @@ Move-Item abiv1-pluswooting.dll universal-analog-plugin-with-wooting-device-supp
 
 Copy the resulting plugin directory into `C:\Program Files\WootingAnalogPlugins` as described above.
 
+## Automated protocol test
+
+Before building release DLLs, compile and run the deterministic CPPRO protocol test:
+
+```powershell
+g++ -std=c++20 -O2 -Wall -Wextra -pedantic -I Soup tests/cppro_protocol_test.cpp -o cppro_protocol_test.exe
+.\cppro_protocol_test.exe
+```
+
+The test validates the command frame, all 68 hardware-key mappings, supported event types, malformed-report rejection, release values, distance clamping, and monotonic `0–4 mm` normalization. The same test runs on every push and pull request through GitHub Actions.
+
 ## Verifying the CPPRO connection
 
 The repository includes a read-only Windows HID probe. It lists the CPPRO HID collections, sends the same key-report request used by the plugin, and prints changing input reports.
@@ -78,7 +89,7 @@ The repository includes a read-only Windows HID probe. It lists the CPPRO HID co
 With MinGW-w64:
 
 ```powershell
-g++ -std=c++17 -O2 -Wall -Wextra -pedantic tools/cppro_hid_probe.cpp -o cppro_hid_probe.exe -lhid -lcfgmgr32
+g++ -std=c++20 -O2 -Wall -Wextra -pedantic tools/cppro_hid_probe.cpp -o cppro_hid_probe.exe -lhid -lcfgmgr32
 .\cppro_hid_probe.exe 10
 ```
 

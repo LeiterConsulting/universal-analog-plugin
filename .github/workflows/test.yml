@@ -1,0 +1,26 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  cppro-protocol:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Test CPPRO protocol
+        shell: cmd
+        run: |
+          cl /nologo /std:c++20 /EHsc /W4 /I Soup tests\cppro_protocol_test.cpp /Fe:cppro_protocol_test.exe
+          cppro_protocol_test.exe
+
+      - name: Compile plugin translation units
+        shell: cmd
+        run: |
+          cl /nologo /std:c++20 /EHsc /W4 /I Soup /c Soup\soup\AnalogueKeyboard.cpp /Fo:AnalogueKeyboard.obj
+          cl /nologo /std:c++20 /EHsc /W4 /I Soup /DABI_VERSION_TARGET=0 /c main.cpp /Fo:main-abiv0.obj
+          cl /nologo /std:c++20 /EHsc /W4 /I Soup /DABI_VERSION_TARGET=1 /c main.cpp /Fo:main-abiv1.obj
